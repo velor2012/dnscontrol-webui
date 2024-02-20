@@ -83,12 +83,7 @@ jobs:
         
       - name: Build
         run: pnpm build
-      - name: Deploy Page
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: ./apps/front/dist
+
       - name: compress dist'
         shell: bash
         run: rm -rf ./output && mkdir ./output && cp ./apps/front/dist ./output/front -r && cp ./apps/server/dist ./output/server -r && cp ./package.json ./output/package.json
@@ -96,7 +91,18 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./output
-
+          
+  deploy-page:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Page
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+          publish_dir: ./output/front
+            
   publish-release:
     needs: build
     runs-on: ubuntu-latest
