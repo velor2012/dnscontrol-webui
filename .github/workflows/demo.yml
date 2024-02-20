@@ -22,9 +22,9 @@ env:
   PATH_BUILD_FRONT: ./apps/front/dist
   CACHE_PATHS_BUILD: |
     node_modules/.cache/turbo
-    ./apps/front/dist
-    ./apps/server/dist
-    ./output
+    # ./apps/front/dist
+    # ./apps/server/dist
+    # ./output
   CACHE_KEY_BUILD:
     build-${{ github.sha }}
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
@@ -91,7 +91,7 @@ jobs:
           publish_dir: ./apps/front/dist
       - name: compress dist'
         shell: bash
-        run: rm -rf ./output && mkdir ./output && mv ./apps/front/dist ./output/front && mv ./apps/server/dist ./output/server && mv ./package.json ./output/package.json
+        run: rm -rf ./output && mkdir ./output && cp ./apps/front/dist ./output/front -r && cp ./apps/server/dist ./output/server -r && cp ./package.json ./output/package.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
