@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CACHE_PATHS_BUILD }}
-          key: ${{ env.CACHE_KEY_BUILD }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             turbo-${{ runner.os }}-
 
@@ -91,10 +91,15 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: |
-            ./apps/front/dist
-            ./apps/server/dist
-            ./apps/front/package.json
+          path: ./apps/front/dist
+      - name: Upload artifact2
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./apps/server/dist
+      - name: Upload artifact3
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./apps/front/package.json
 
       
   publish-release:
@@ -106,7 +111,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CACHE_PATHS_BUILD }}
-          key: ${{ env.CACHE_KEY_BUILD }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             turbo-${{ runner.os }}-
       - name: version
