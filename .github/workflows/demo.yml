@@ -41,7 +41,7 @@ jobs:
           static_site_generator: next
       - name: Install dependencies
         run: npm install -g pnpm && pnpm i
-      - name: Build with Next.js
+      - name: Build
         run: pnpm build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -56,12 +56,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: ls
+        run: ls
       - name: Deploy to GitHub Pages
         id: deployment
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: ./apps/front/dist
+          publish_dir: .
 
       
   publish-release:
