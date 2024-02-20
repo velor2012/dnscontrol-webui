@@ -25,7 +25,7 @@ env:
     ./apps/front/dist
     ./apps/server/dist
   CACHE_KEY_BUILD:
-    turbo-${{ runner.os }}-${{ github.ref_name }}-${{ github.sha }}
+    build-${{ github.sha }}
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
