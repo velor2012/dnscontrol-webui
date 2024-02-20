@@ -56,14 +56,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: ls
-        run: ls
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: .
+        uses: actions/deploy-pages@v4
 
       
   publish-release:
@@ -74,7 +69,7 @@ jobs:
         id: version
         uses: ashley-taylor/read-json-property-action@v1.0
         with:
-          path: ./apps/front/dist/package.json
+          path: ./apps/front/package.json
           property: version
       - name: create release
         uses: actions/create-release@latest
