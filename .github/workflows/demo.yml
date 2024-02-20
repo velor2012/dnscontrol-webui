@@ -40,7 +40,7 @@ jobs:
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: next
       - name: Install dependencies
-        run: pnpm i
+        run: npm install -g pnpm && pnpm i
       - name: Build with Next.js
         run: pnpm build
       - name: Upload artifact
