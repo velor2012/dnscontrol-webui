@@ -91,7 +91,7 @@ jobs:
           publish_dir: ./apps/front/dist
       - name: zip dist'
         shell: bash
-        run: mkdir ./output && mv ./apps/front/dist ./output/front && mv ./apps/server/dist ./output/server && mv ./apps/package.json ./output/package.json
+        run: mkdir ./output && mv ./apps/front/dist ./output/front && mv ./apps/server/dist ./output/server && mv ./package.json ./output/package.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
