@@ -24,6 +24,7 @@ env:
     node_modules/.cache/turbo
     ./apps/front/dist
     ./apps/server/dist
+    ./output
   CACHE_KEY_BUILD:
     build-${{ github.sha }}
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
@@ -88,20 +89,14 @@ jobs:
         with:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
           publish_dir: ./apps/front/dist
+      - name: zip dist'
+        shell: bash
+        run: mkdir ./output && mv ./apps/front/dist ./output/front && mv ./apps/server/dist ./output/server && mv ./apps/package.json ./output/package.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./apps/front/dist
-      - name: Upload artifact2
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./apps/server/dist
-      - name: Upload artifact3
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./apps/front/package.json
+          path: ./output
 
-      
   publish-release:
     needs: build
     runs-on: ubuntu-latest
@@ -118,7 +113,7 @@ jobs:
         id: version
         uses: ashley-taylor/read-json-property-action@v1.0
         with:
-          path: ./apps/front/dist/index.html
+          path: ./output/package.json
           property: version
       - name: create release
         uses: actions/create-release@latest
