@@ -55,26 +55,26 @@ jobs:
         with:
           node-version: 18
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo ::set-output name=STORE_PATH::$(pnpm store path)
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - name: Setup turbo cache
-        id: turbo-cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.CACHE_PATHS_BUILD }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-
+      # - name: Get pnpm store directory
+      #   id: pnpm-cache
+      #   shell: bash
+      #   run: |
+      #     echo ::set-output name=STORE_PATH::$(pnpm store path)
+      # - name: Setup pnpm cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+      #     key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pnpm-store-
+      # - name: Setup turbo cache
+      #   id: turbo-cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ env.CACHE_PATHS_BUILD }}
+      #     key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       turbo-${{ runner.os }}-
       - name: Install dependencies
         run: pnpm install
         
