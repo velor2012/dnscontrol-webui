@@ -87,14 +87,14 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: |
-            ./apps/front/dist
-            ./apps/server/dist
-            ./apps/front/package.json
+          publish_dir: ./apps/front/dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./apps/front/dist
+          path: |
+            ./apps/front/dist
+            ./apps/server/dist
+            ./apps/front/package.json
 
       
   publish-release:
@@ -113,7 +113,7 @@ jobs:
         id: version
         uses: ashley-taylor/read-json-property-action@v1.0
         with:
-          path: ./apps/front/package.json
+          path: ./apps/front/dist/index.html
           property: version
       - name: create release
         uses: actions/create-release@latest
