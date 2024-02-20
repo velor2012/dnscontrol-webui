@@ -22,9 +22,9 @@ env:
   PATH_BUILD_FRONT: ./apps/front/dist
   CACHE_PATHS_BUILD: |
     node_modules/.cache/turbo
-    # ./apps/front/dist
-    # ./apps/server/dist
-    # ./output
+    ./apps/front/dist
+    ./apps/server/dist
+    ./output
   CACHE_KEY_BUILD:
     build-${{ github.sha }}
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
