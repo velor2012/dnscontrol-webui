@@ -37,16 +37,16 @@ jobs:
         run: npm install -g pnpm && pnpm i
       - name: Build
         run: pnpm build
+      - name: Deploy Page
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
+          publish_dir: ./apps/front/dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./apps/front/dist
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@master
-        env:
-          ACCESS_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: apps/front/dist
 
       
   # publish-release:
