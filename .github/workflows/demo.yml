@@ -17,7 +17,15 @@ permissions:
   contents: read
   pages: write
   id-token: write
-
+env:
+  PATH_BUILD_SERVER: ./apps/server/dist
+  PATH_BUILD_FRONT: ./apps/front/dist
+  CACHE_PATHS_BUILD: |
+    node_modules/.cache/turbo
+    ./apps/front/dist
+    ./apps/server/dist
+  CACHE_KEY_BUILD:
+    turbo-${{ runner.os }}-${{ github.ref_name }}-${{ github.sha }}
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -31,10 +39,47 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo ::set-output name=STORE_PATH::$(pnpm store path)
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Setup turbo cache
+        id: turbo-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CACHE_PATHS_BUILD }}
+          key: ${{ env.CACHE_KEY_BUILD }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
       - name: Install dependencies
-        run: npm install -g pnpm && pnpm i
+        run: pnpm install
+        
       - name: Build
         run: pnpm build
       - name: Deploy Page
@@ -42,43 +87,54 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          publish_dir: ./apps/front/dist
+          publish_dir: |
+            ./apps/front/dist
+            ./apps/server/dist
+            ./apps/front/package.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./apps/front/dist
 
       
-  # publish-release:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: version
-  #       id: version
-  #       uses: ashley-taylor/read-json-property-action@v1.0
-  #       with:
-  #         path: ./apps/front/package.json
-  #         property: version
-  #     - name: create release
-  #       uses: actions/create-release@latest
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
+  publish-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup turbo cache
+        id: turbo-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CACHE_PATHS_BUILD }}
+          key: ${{ env.CACHE_KEY_BUILD }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+      - name: version
+        id: version
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./apps/front/package.json
+          property: version
+      - name: create release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
 
-  #         tag_name: v${{steps.version.outputs.value}}
-  #         # release名
-  #         release_name: v${{steps.version.outputs.value}}
-  #         # 是否为草稿
-  #         draft: false
-  #         # 是否为预发布
-  #         prerelease: false
-  #     - name: upload release
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         # 上传文件信息
-  #         asset_path: ./dist/index.js
-  #         asset_name: index.js
-  #         asset_content_type: application/js
+          tag_name: v${{steps.version.outputs.value}}
+          # release名
+          release_name: v${{steps.version.outputs.value}}
+          # 是否为草稿
+          draft: false
+          # 是否为预发布
+          prerelease: false
+      - name: upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          # 上传文件信息
+          asset_path: ./dist/index.js
+          asset_name: index.js
+          asset_content_type: application/js
