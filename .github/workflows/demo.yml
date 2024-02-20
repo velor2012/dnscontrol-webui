@@ -88,7 +88,7 @@ jobs:
           publish_dir: ./apps/front/dist
       - name: zip dist
         shell: bash
-        run: mkdir ./output && cp ./apps/front/dist ./output/front -r && mv ./apps/server/dist ./output/server cp -r && cp ./package.json ./output/package.json
+        run: rm -rf ./output mkdir ./output && cp ./apps/front/dist ./output/front -r && mv ./apps/server/dist ./output/server cp -r && cp ./package.json ./output/package.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
