@@ -22,7 +22,10 @@ export class DomainController {
 
   @Post()
    addDomain(@Body() addDomainDto: addDomainDto) {
-    return this.domainService.addDomain(addDomainDto.domain);
+    if(addDomainDto.provider == null || addDomainDto.provider == ""){
+        addDomainDto.provider = process.env.DEFAULT_PROVIDER;
+    }
+    return this.domainService.addDomain(addDomainDto.domain, addDomainDto.provider);
   }
 
   @Put()

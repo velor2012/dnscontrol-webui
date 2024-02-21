@@ -22,7 +22,29 @@ export default () => {
             fs.writeFile(credPath, "")
         }
     }
+
+    let domainProviderMap = {}
+    let providerDomainMap = {}
     if (dirPath != "" && credPath != "") {
+        // 读取已经配置的域名/提供商信息
+        var files = fssync.readdirSync(dirPath);
+        domainProviderMap = {}
+        files.forEach(function (filename) {
+            console.log('filename: ', filename)
+            // 不断拼接直到找到文件
+            let arrs = filename.split('.')
+            if(arrs.length > 2){
+                // 去掉最后的.js
+                arrs.splice(arrs.length - 1, 1)
+                // 去掉最后的provider
+                const provider = arrs.splice(arrs.length - 1, 1)[0]
+                const domain = arrs.join('.')
+                domainProviderMap[domain] = provider
+                providerDomainMap[provider] = domain
+            }
+            
+        })
+
         customInit({
             dirPath,
             credPath
@@ -30,6 +52,8 @@ export default () => {
     }
     return {
         dirPath,
-        credPath
+        credPath,
+        domainProviderMap,
+        providerDomainMap
     }
   };

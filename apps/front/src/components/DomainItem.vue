@@ -7,6 +7,10 @@
             <InputText disabled :placeholder="domain" />
         </InputGroup>
 
+        <InputGroup>
+            <Chip :label="provider" class=" ml-2" />
+        </InputGroup>
+
         <div class=" flex justify-center gap-4">
             <Button :loading="loadingUpdate" label="更新" class="w-20 h-10" @click="flushDns"/>
             <Button label="编辑" class="w-20 h-10" @click="openEditDialog"/>
@@ -23,9 +27,14 @@ import { useConfirm } from "primevue/useconfirm";
 import axios from '../plugins/axios'
 import { useToast } from 'primevue/usetoast';
 import { type Ref, inject, ref } from 'vue';
+import Chip from 'primevue/chip';
 const emit = defineEmits(['reload'])
 const props = defineProps({
     domain: {
+        type: String,
+        required: true
+    },
+    provider: {
         type: String,
         required: true
     }

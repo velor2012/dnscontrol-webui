@@ -25,7 +25,7 @@ import router from './router'
 const editorContent = ref<string>('我是父组件传过来的值:editorContent')
 const filepath = ref<string>('我是父组件传过来的值:filepath')
 const saveFun = ref<any>(()=>{})
-const domainArrs = ref<Array<string>>([])
+const domainArrs = ref<Array<any>>([])
 const fetchDnsLoading = ref<boolean>(false)
 const saveLoading = ref<boolean>(false)
 const toast = useToast()
@@ -55,7 +55,8 @@ const fetchDns = async () => {
         console.log('fetchDns:', domainArrs.value[i])
         let res: any = await axios.get(`${env.VITE_API_PATH}/api/dns/reload`,{
             params:{
-                domain: domainArrs.value[i]
+                domain: domainArrs.value[i].domain,
+                provider: domainArrs.value[i].provider
             }
         }).then(res => {
             console.log('fetchDns:', res)

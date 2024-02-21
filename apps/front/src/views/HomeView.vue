@@ -4,7 +4,7 @@
         <!-- <div class=" text-center">Home</div> -->
         <div class=" flex w-full justify-center">
             <div class=" w-[50vw]">
-                <domain-item v-for="(item, idx) in data" :key="idx" :domain="item" @reload="loadData"></domain-item>
+                <domain-item v-for="(item, idx) in data" :key="idx" :provider="item.provider" :domain="item.domain" @reload="loadData"></domain-item>
             </div>
         </div>
         <div class=" w-full flex items-center justify-center mt-4">
@@ -14,7 +14,8 @@
     <ConfirmDialog group="addDomainConfirm">
         <template #message="slotProps">
             <div class="flex flex-col items-center w-full gap-3 border-b border-surface-200 dark:border-surface-700">
-                <InputText v-model="newDomain" />
+                <InputText placeholder="请输入域名" v-model="newDomain" />
+                <InputText placeholder="请输入域名提供商，cred.json中必须存在该的key" v-model="newProvider" />
             </div>
         </template>
     </ConfirmDialog>
@@ -61,8 +62,9 @@ import Editor from '../components/Editor.vue';
 
 const toast = useToast();
 const confirm = useConfirm();
-let data: Ref<string[]> = inject('domainArrs')!
+let data: Ref<any[]> = inject('domainArrs')!
 const newDomain = ref<string>('')
+const newProvider = ref<string>('')
     
 const env = import.meta.env;
 const loadData = async () => {
@@ -82,12 +84,13 @@ const openAddDomainConfirm = () => {
         accept: async () => {
             console.log('accept add domain:', newDomain.value)
             let res: any = await axios.post(`${env.VITE_API_PATH}/api/domain`, {
-                domain: newDomain.value
+                domain: newDomain.value,
+                provider: newProvider.value
             }).then(res =>{
                 toast.add({severity:'success', summary: 'Success', detail: 'Add domain success', life: 3000});
                 loadData()
             }).catch(e=>{
-                toast.add({severity:'error', summary: 'Error', detail: e, life: 3000});
+                e.response && toast.add({severity:'error', summary: 'Error', detail: e.response.data.message, life: 3000});
             });
         }
     });

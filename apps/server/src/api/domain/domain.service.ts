@@ -21,6 +21,7 @@ export class DomainService {
  constructor(private fileService: FileService, private config: ConfigService) {}
     // 只允许访问指定目录
  baseTree = dree.scan(process.env.BASE_PATH);
+ domainProviderMap = this.config.get('domainProviderMap');
 
   getFiles(path: string): any {
     const options = {
@@ -41,7 +42,12 @@ export class DomainService {
   // path需要包括文件名
   async saveDomain(domain: string, content: string) {
     const scanPath = this.config.get('dirPath');
-    const filePath = path.join(scanPath, domain + '.js')
+    if(!(domain in this.domainProviderMap)){
+        throw new HttpException(`域名：${domain} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+    const filePath = path.join(scanPath, domain + '.'+ this.domainProviderMap[domain] +'.js')
+
+    // console.log(`domain: ${domain}, domainProviderMap: ${this.domainProviderMap}`)
     try{
         const res = await fs.writeFile(filePath, content);
         return res;
@@ -51,11 +57,15 @@ export class DomainService {
     return "" ;
   }
 
-  async addDomain(domain: string) {
+  async addDomain(domain: string, provider: string) {
     const scanPath = this.config.get('dirPath');
-    const filePath = path.join(scanPath, domain + '.js')
+    const filePath = path.join(scanPath, domain + '.' + provider + '.js')
+    const cred = JSON.parse(this.getCred())
+    if(!provider || !(provider in cred)){
+        throw new HttpException(`provider ${provider} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
     try{
-        if(fssync.existsSync(filePath))
+        if(fssync.existsSync(filePath) || domain in this.domainProviderMap)
         {
             throw new HttpException(`域名：${domain} 已存在`, HttpStatus.INTERNAL_SERVER_ERROR)
         } 
@@ -70,7 +80,13 @@ export class DomainService {
 
   async delDomain(domain: string) {
     const scanPath = this.config.get('dirPath');
-    const filePath = path.join(scanPath, domain + '.js')
+    if(!(domain in this.domainProviderMap)){
+        throw new HttpException(`域名：${domain} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    const provider = this.domainProviderMap[domain]
+    const filePath = path.join(scanPath, domain + '.' + provider + '.js')
+
     try{
         if(!fssync.existsSync(filePath))
         {
@@ -97,7 +113,18 @@ export class DomainService {
                 return item.extension == filterStr && item.name.indexOf('draft') != 0
             })
             .map((item)=>{
-                return instanceToPlain(path.basename(item.name, '.' + filterStr));
+                let arrs = item.name.split('.')
+                if(arrs.length > 2){
+                    // 去掉最后的.js
+                    arrs.splice(arrs.length - 1, 1)
+                    // 去掉最后的provider
+                    const provider = arrs.splice(arrs.length - 1, 1)[0]
+                    return instanceToPlain({
+                        domain: arrs.join('.'),
+                        provider
+                    })
+                }
+                return ""
             })
         }
         return []
@@ -109,7 +136,10 @@ export class DomainService {
   
   getDomainDetail(domain: string) : string {
     const scanPath = this.config.get('dirPath');
-    const filePath = path.join(scanPath, domain + '.js')
+    if(!(domain in this.domainProviderMap)){
+        throw new HttpException(`域名：${domain} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+    const filePath = path.join(scanPath, domain + '.' + this.domainProviderMap[domain] + '.js')
     return this.fileService.getFile(filePath);
   }
   getCred() : string {
