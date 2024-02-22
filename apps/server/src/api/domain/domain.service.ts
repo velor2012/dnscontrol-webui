@@ -69,7 +69,8 @@ export class DomainService {
         {
             throw new HttpException(`域名：${domain} 已存在`, HttpStatus.INTERNAL_SERVER_ERROR)
         } 
-
+        this.domainProviderMap[domain] = provider
+        this.config.set('domainProviderMap', this.domainProviderMap);
         const res = await fs.writeFile(filePath, "");
         return res;
     }catch(e){
@@ -94,6 +95,8 @@ export class DomainService {
         } 
 
         const res = await fs.unlink(filePath);
+        delete this.domainProviderMap[domain]
+        console.log(`delete domainProviderMap: ${domain}, after delete->domainProviderMap: ${JSON.stringify(this.domainProviderMap)}`)
         return res;
     }catch(e){
         throw new HttpException(`删除 ${domain} 失败`, HttpStatus.INTERNAL_SERVER_ERROR)
