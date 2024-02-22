@@ -60,11 +60,11 @@ export class DomainService {
   async addDomain(domain: string, provider: string) {
     const scanPath = this.config.get('dirPath');
     const filePath = path.join(scanPath, domain + '.' + provider + '.js')
-    const cred = JSON.parse(this.getCred())
-    if(!provider || !(provider in cred)){
-        throw new HttpException(`provider ${provider} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
-    }
     try{
+        const cred = JSON.parse(this.getCred())
+        if(!provider || !(provider in cred)){
+            throw new HttpException(`provider ${provider} 不存在`, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
         if(fssync.existsSync(filePath) || domain in this.domainProviderMap)
         {
             throw new HttpException(`域名：${domain} 已存在`, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -73,7 +73,7 @@ export class DomainService {
         const res = await fs.writeFile(filePath, "");
         return res;
     }catch(e){
-        throw new HttpException(`添加 ${domain} 失败`, HttpStatus.INTERNAL_SERVER_ERROR)
+        throw new HttpException(`添加 ${domain} 失败, Execption:${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
     }
     return "" ;
   }
@@ -147,6 +147,11 @@ export class DomainService {
     return this.fileService.getFile(credPath);
   }
   async updateCred(content: string) {
+        try{
+            const cred = JSON.parse(content)
+        }catch(e){
+            throw new HttpException(`cred格式错误`, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
         const credPath = this.config.get('credPath');
         return await this.fileService.saveFile(content, credPath);
     }

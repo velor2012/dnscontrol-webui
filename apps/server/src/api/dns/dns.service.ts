@@ -1,14 +1,7 @@
 import { HttpException, HttpStatus, Injectable, StreamableFile  } from '@nestjs/common';
 import * as dree from 'dree';   
-import * as path from 'node:path';
-import * as fs from 'node:fs/promises';
 import { ConfigService } from '@nestjs/config';
 import { ShellService } from '../lib/shell.service';
-
-function isSubPath(subPath, parentPath) {
-  const relativePath = path.relative(parentPath, subPath);
-  return !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
-}
 
 
 @Injectable()
