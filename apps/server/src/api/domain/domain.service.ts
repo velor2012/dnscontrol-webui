@@ -87,6 +87,7 @@ export class DomainService {
 
     const provider = this.domainProviderMap[domain]
     const filePath = path.join(scanPath, domain + '.' + provider + '.js')
+    const bkPath = path.join(scanPath, domain + '.' + provider + '.js.bk')
 
     try{
         if(!fssync.existsSync(filePath))
@@ -95,6 +96,9 @@ export class DomainService {
         } 
 
         const res = await fs.unlink(filePath);
+        if(fssync.existsSync(bkPath)){
+            fs.unlink(bkPath);
+        }
         delete this.domainProviderMap[domain]
         console.log(`delete domainProviderMap: ${domain}, after delete->domainProviderMap: ${JSON.stringify(this.domainProviderMap)}`)
         return res;
