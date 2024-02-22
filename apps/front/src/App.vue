@@ -37,11 +37,17 @@ provide('saveFun', saveFun)
 
 const save = async () => {
   saveLoading.value = true
-  if(saveFun.value) {
-    console.log('exit saveFun')
-    await saveFun.value()
+  try{
+      if(saveFun.value) {
+        console.log('exit saveFun')
+        await saveFun.value()
+      }
+      toast.add({severity:'success', summary: '保存成功', life: 3000})
+  } catch(e) {
+      toast.add({severity:'error', summary: '保存失败', detail: e, life: 3000})
+  } finally {
+      saveLoading.value = false
   }
-  saveLoading.value = false
 }
 const goto = async (url: string) => {
   router.push(url)
