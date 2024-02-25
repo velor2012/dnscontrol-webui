@@ -35,8 +35,9 @@ export class DnsService {
         dnsProvider = this.domainProviderMap[domain] || process.env.DEFAULT_PROVIDER;
     }
     try{
-        const res = await this.shellService.executeCommand(`cd configs/zones && dnscontrol get-zones --format=js --out=draft.js ${dnsProvider} - ${domain}`);
-        const res2 = await this.shellService.executeCommand(`cd configs/zones && cp ${domain}.${dnsProvider}.js ${domain}.${dnsProvider}.js.bk && cp draft.js ${domain}.${dnsProvider}.js`);
+        const res = await this.shellService.executeCommand(`cd configs/zones && dnscontrol get-zones --format=js --out=draft.${domain}.js ${dnsProvider} - ${domain}`);
+        const res2 = await this.shellService.executeCommand(`cd configs/zones && cp ${domain}.${dnsProvider}.js ${domain}.${dnsProvider}.js.bk && cp draft.${domain}.js ${domain}.${dnsProvider}.js`);
+        const res3 = await this.shellService.executeCommand(`cd configs/zones && rm draft.${domain}.js`);
         return res;
     }catch(e){
         console.log(`获取dns记录失败: ${e}`)
