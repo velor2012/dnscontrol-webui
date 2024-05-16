@@ -64,16 +64,18 @@ const fetchDns = async () => {
                 domain: domainArrs.value[i].domain,
                 provider: domainArrs.value[i].provider
             }
-        }).then(res => {
-            console.log('fetchDns:', res)
-            toast.add({severity:'success', summary: '更新成功', detail: res, life: 3000})
-        }).catch(e => {
-            console.log('fetchDns:', e)
-            toast.add({severity:'error', summary: '更新失败', detail: e, life: 3000})
         })
         promiseArrs.push(promise)
     }
-    await Promise.all(promiseArrs)
+    for(let i = 0; i < domainArrs.value.length; i++) {
+        try{
+            await promiseArrs[i]
+        }catch(e){
+
+        }
+        toast.add({severity:'info', summary: `更新 ${domainArrs.value[i].domain} 完成`, detail: '', life: 3000})
+    }
+    // await Promise.all(promiseArrs)
     fetchDnsLoading.value = false
 }
 
