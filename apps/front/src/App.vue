@@ -57,23 +57,18 @@ const updateDns = async () => {}
 
 const fetchDns = async () => {
     fetchDnsLoading.value = true
-    const promiseArrs = []
-    for(let i = 0; i < domainArrs.value.length; i++) {
-        const promise = axios.get(`${env.VITE_API_PATH}/api/dns/reload`,{
-            params:{
-                domain: domainArrs.value[i].domain,
-                provider: domainArrs.value[i].provider
-            }
-        })
-        promiseArrs.push(promise)
-    }
     for(let i = 0; i < domainArrs.value.length; i++) {
         try{
-            await promiseArrs[i]
+            const res = await axios.get(`${env.VITE_API_PATH}/api/dns/reload`,{
+                params:{
+                    domain: domainArrs.value[i].domain,
+                    provider: domainArrs.value[i].provider
+                }
+            })
+            toast.add({severity:'info', summary: `更新 ${domainArrs.value[i].domain} 完成`, detail: '', life: 3000})
         }catch(e){
-
+            toast.add({severity:'error', summary: `更新 ${domainArrs.value[i].domain} 失败`, detail: '', life: 3000})
         }
-        toast.add({severity:'info', summary: `更新 ${domainArrs.value[i].domain} 完成`, detail: '', life: 3000})
     }
     // await Promise.all(promiseArrs)
     fetchDnsLoading.value = false
